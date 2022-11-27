@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServerClient interface {
 	GetInfo(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ServerInfo, error)
+	AddServer(ctx context.Context, in *ServerInfo, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type serverClient struct {
@@ -42,11 +43,21 @@ func (c *serverClient) GetInfo(ctx context.Context, in *EmptyRequest, opts ...gr
 	return out, nil
 }
 
+func (c *serverClient) AddServer(ctx context.Context, in *ServerInfo, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/AddServer", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServerServer is the server API for Server service.
 // All implementations must embed UnimplementedServerServer
 // for forward compatibility
 type ServerServer interface {
 	GetInfo(context.Context, *EmptyRequest) (*ServerInfo, error)
+	AddServer(context.Context, *ServerInfo) (*EmptyResponse, error)
 	mustEmbedUnimplementedServerServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedServerServer struct {
 
 func (UnimplementedServerServer) GetInfo(context.Context, *EmptyRequest) (*ServerInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInfo not implemented")
+}
+func (UnimplementedServerServer) AddServer(context.Context, *ServerInfo) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddServer not implemented")
 }
 func (UnimplementedServerServer) mustEmbedUnimplementedServerServer() {}
 
@@ -88,6 +102,24 @@ func _Server_GetInfo_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Server_AddServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ServerInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).AddServer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/AddServer",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).AddServer(ctx, req.(*ServerInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Server_ServiceDesc is the grpc.ServiceDesc for Server service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var Server_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetInfo",
 			Handler:    _Server_GetInfo_Handler,
+		},
+		{
+			MethodName: "AddServer",
+			Handler:    _Server_AddServer_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

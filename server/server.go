@@ -16,6 +16,22 @@ var (
 
 type Server struct {
 	pb.UnimplementedServerServer
+
+	Infos []pb.ServerInfo
+}
+
+func NewServer() *Server {
+	server := &Server{
+		Infos: make([]pb.ServerInfo, 0),
+	}
+
+	server.Infos = append(server.Infos, pb.ServerInfo{
+		Name:        "grpc-test",
+		Author:      "evilc00kie",
+		Description: "Test service to get server static information",
+	})
+
+	return server
 }
 
 func (s *Server) GetInfo(ctx context.Context, _ *pb.EmptyRequest) (*pb.ServerInfo, error) {
@@ -24,6 +40,12 @@ func (s *Server) GetInfo(ctx context.Context, _ *pb.EmptyRequest) (*pb.ServerInf
 		Author:      "evilc00kie",
 		Description: "Test service to get server static information",
 	}, nil
+}
+
+func (s *Server) AddServer(ctx context.Context, info *pb.ServerInfo) (*pb.EmptyResponse, error) {
+	s.Infos = append(s.Infos, *info)
+	fmt.Printf("[*] New server added: %s\n", info.Name)
+	return &pb.EmptyResponse{}, nil
 }
 
 func main() {
@@ -35,6 +57,6 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterServerServer(grpcServer, &Server{})
+	pb.RegisterServerServer(grpcServer, NewServer())
 	grpcServer.Serve(listener)
 }

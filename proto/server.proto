@@ -6,9 +6,11 @@ package server;
 
 service Server {
     rpc GetInfo(EmptyRequest) returns (ServerInfo) {}
+    rpc AddServer(ServerInfo) returns (EmptyResponse) {}
 }
 
 message EmptyRequest{}
+message EmptyResponse{}
 
 message ServerInfo {
     string name = 1;

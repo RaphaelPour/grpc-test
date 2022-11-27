@@ -29,6 +29,16 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	_, err = client.AddServer(ctx, &pb.ServerInfo{
+		Name:        "hyperDNS",
+		Description: "Fastest DNS in the web",
+		Author:      "cNAME",
+	})
+	if err != nil {
+		fmt.Println("error adding hyperDNS server: %s\n", err)
+		return
+	}
+
 	serverInfo, err := client.GetInfo(ctx, &pb.EmptyRequest{})
 	if err != nil {
 		fmt.Printf("error getting server info: %s\n", err)
