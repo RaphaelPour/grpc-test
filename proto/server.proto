@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/RaphaelPour/grpc-test/proto";
+
+package server;
+
+service Server {
+    rpc GetInfo(EmptyRequest) returns (ServerInfo) {}
+}
+
+message EmptyRequest{}
+
+message ServerInfo {
+    string name = 1;
+    string author = 2;
+    string description = 3;
+}
