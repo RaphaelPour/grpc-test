@@ -5,7 +5,7 @@ Checkout grpc and protobuf. First run server and then client in a separate shell
 - `go run server/server.go`
 - `go run client/client.go`
 
-Regenerate grpc code: `task proto`
+Regenerate grpc code: `protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/server.proto`
 
 ## Notes
 
